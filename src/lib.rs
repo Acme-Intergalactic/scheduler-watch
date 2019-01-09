@@ -11,7 +11,7 @@ pub mod postgres;
 /// Requires two environment variables:  
 /// HEROKU_APP_NAME=blipboards  
 /// HEROKU_API_KEY=some_secret_key  
-pub fn monitor_schedules() {
+pub fn monitor_schedules() -> (i64, i64) {
     // 1. Get current db url.  (Relies on environment variables for Heroku creds and app name.)
     let db_url = heroku::db_url().expect("Heroku isn't returning a db url.");
 
@@ -33,5 +33,5 @@ pub fn monitor_schedules() {
     for _i in 0..allowed {
         heroku::run_command("./manage.py extendschedules", 600)
     }
-    println!("Started {} dynos because {} schedules were behind.", allowed, n);
+    (n, allowed)
 }
