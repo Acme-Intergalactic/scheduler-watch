@@ -3,5 +3,6 @@ extern crate dotenv;
 
 fn main() {
     dotenv::dotenv().ok();
-    monitor_schedules::monitor_schedules();
+    let (n, allowed) = monitor_schedules::monitor_schedules();
+    println!("{} late schedules, {} commissioned dynos", n, allowed);
 }
