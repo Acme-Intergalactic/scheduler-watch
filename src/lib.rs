@@ -3,7 +3,7 @@
 extern crate diesel;
 extern crate reqwest;
 
-// use core::cmp::min;
+use core::cmp::min;
 pub mod heroku;
 pub mod postgres;
 
@@ -17,23 +17,22 @@ pub fn monitor_schedules() -> (i64, i64) {
 
     // // 2. Using that url, find out how many schedules are late.
     let conn = postgres::connection(&db_url);
-    let n = 7;
-    // let n = postgres::late_schedule_count(&conn);
+    // let n = 7;
+    let n = postgres::late_schedule_count(&conn);
 
-    // // 3. If any schedules are late, fix that.
-    // // 3a.  Assume 30 seconds per schedule per dyno and try to get through them within 10 minutes.  So 20 per dyno.
-    // let needed = match n {
-    //     0 => 0,
-    //     n => (n / 20) + 1
-    // };
+    // 3. If any schedules are late, fix that.
+    // 3a.  Assume 30 seconds per schedule per dyno and try to get through them within 10 minutes.  So 20 per dyno.
+    let needed = match n {
+        0 => 0,
+        n => (n / 20) + 1
+    };
 
-    // // 3b.  However, the max number of dynos allowed is 50.  So don't have more than 40.
-    // let allowed = min(needed, 40);
+    // 3b.  However, the max number of dynos allowed is 50.  So don't have more than 40.
+    let allowed = min(needed, 40);
 
-    // // 3c.  Start the required dynos, but make sure that they die within 10 minutes.
-    // for _i in 0..allowed {
-    //     heroku::run_command("./manage.py extendschedules", 600)
-    // }
-    // (n, allowed)
-    (db_url.chars().count() as i64, n)
+    // 3c.  Start the required dynos, but make sure that they die within 10 minutes.
+    for _i in 0..allowed {
+        heroku::run_command("./manage.py extendschedules", 600)
+    }
+    (n, allowed)
 }
