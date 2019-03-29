@@ -1,5 +1,5 @@
-extern crate monitor_schedules;
 extern crate dotenv;
+extern crate monitor_schedules;
 
 fn main() {
     dotenv::dotenv().ok();

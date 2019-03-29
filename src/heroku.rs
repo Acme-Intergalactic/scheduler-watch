@@ -14,7 +14,10 @@ fn get_config() -> HashMap<String, String> {
     let heroku_app_name = env::var("HEROKU_APP_NAME").expect("HEROKU_APP_NAME must be set");
     let heroku_api_key = env::var("HEROKU_API_KEY").expect("HEROKU_API_KEY must be set");
 
-    let url = format!("https://api.heroku.com/apps/{}/config-vars", heroku_app_name);
+    let url = format!(
+        "https://api.heroku.com/apps/{}/config-vars",
+        heroku_app_name
+    );
 
     let client = reqwest::Client::new();
     let mut res = client
@@ -55,7 +58,7 @@ pub fn run_command(command: &str, time_to_live: u32) {
 pub fn db_url() -> Option<String> {
     match get_config().get("DATABASE_URL") {
         Some(value) => Some(value.to_string()),
-        None => None
+        None => None,
     }
 }
 
@@ -68,7 +71,7 @@ mod tests {
 
     #[test]
     fn test_get_config() {
-        setup();       
+        setup();
         println!("{:#?}", get_config())
     }
 
@@ -81,6 +84,6 @@ mod tests {
     #[test]
     fn test_run_command() {
         setup();
-        run_command(&"bash");
+        run_command(&"bash", 1);
     }
 }

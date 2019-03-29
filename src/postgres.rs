@@ -1,7 +1,6 @@
 use diesel::prelude::*;
 use diesel::sql_types::BigInt;
 use diesel::{sql_query, PgConnection, QueryableByName};
-// use diesel::PgConnection;
 
 #[derive(QueryableByName)]
 pub struct Count {
