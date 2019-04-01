@@ -12,11 +12,13 @@ pub fn connection(db_url: &str) -> PgConnection {
     PgConnection::establish(&db_url).unwrap()
 }
 
-pub fn late_schedule_count(conn: &PgConnection) -> i64 {
+pub fn late_schedule_count(conn: &PgConnection) -> u64 {
     let count: Count = sql_query(include_str!("sql/late_schedule_count.sql"))
         .get_result(conn)
         .unwrap();
-    count.n
+    
+    assert!(count.n > -1);
+    count.n as u64
 }
 
 #[cfg(test)]
