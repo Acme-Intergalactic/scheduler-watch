@@ -2,6 +2,19 @@ use reqwest::header::ACCEPT;
 use std::collections::HashMap;
 use std::env;
 
+struct HerokuConfig {
+    app_name: String,
+    api_key: String,
+}
+
+impl HerokuConfig {
+    fn new() -> HerokuConfig {
+        let app_name = env::var("HEROKU_APP_NAME").expect("HEROKU_APP_NAME must be set");
+        let api_key = env::var("HEROKU_API_KEY").expect("HEROKU_API_KEY must be set");
+        HerokuConfig{app_name, api_key}
+    }
+}
+
 #[allow(dead_code)]
 fn print_response(response: &mut reqwest::Response) {
     println!("Status: {}", response.status());
@@ -9,21 +22,19 @@ fn print_response(response: &mut reqwest::Response) {
     println!("{}", response.text().expect("Response has no text."));
 }
 
-/// Get all the environment variables.
+/// Get all the target Heroku app environment variables.
 fn get_config() -> HashMap<String, String> {
-    let heroku_app_name = env::var("HEROKU_APP_NAME").expect("HEROKU_APP_NAME must be set");
-    let heroku_api_key = env::var("HEROKU_API_KEY").expect("HEROKU_API_KEY must be set");
-
+    let envs = HerokuConfig::new();
     let url = format!(
         "https://api.heroku.com/apps/{}/config-vars",
-        heroku_app_name
+        envs.app_name
     );
 
     let client = reqwest::Client::new();
     let mut res = client
         .get(&url)
         .header(ACCEPT, "application/vnd.heroku+json; version=3")
-        .bearer_auth(&heroku_api_key)
+        .bearer_auth(&envs.api_key)
         .send()
         .expect("Is your internet down?");
     res.json().expect("Missing json.")
@@ -34,10 +45,9 @@ fn get_config() -> HashMap<String, String> {
 /// Example:  
 /// ```run_command(&"./manage.py extendschedules", 600)```
 pub fn run_command(command: &str, time_to_live: u32) {
-    let heroku_app_name = env::var("HEROKU_APP_NAME").expect("HEROKU_APP_NAME must be set");
-    let heroku_api_key = env::var("HEROKU_API_KEY").expect("HEROKU_API_KEY must be set");
+    let envs = HerokuConfig::new();
 
-    let url = format!("https://api.heroku.com/apps/{}/dynos", heroku_app_name);
+    let url = format!("https://api.heroku.com/apps/{}/dynos", envs.app_name);
 
     let mut map = HashMap::new();
     map.insert("command", command);
@@ -48,7 +58,7 @@ pub fn run_command(command: &str, time_to_live: u32) {
     let _res = client
         .post(&url)
         .header(ACCEPT, "application/vnd.heroku+json; version=3")
-        .bearer_auth(&heroku_api_key)
+        .bearer_auth(&envs.api_key)
         .json(&map)
         .send()
         .expect("Is your internet down?");
