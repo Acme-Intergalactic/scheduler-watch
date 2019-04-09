@@ -9,8 +9,7 @@ struct HerokuConfig {
 
 impl HerokuConfig {
     fn new() -> HerokuConfig {
-        let args: Vec<_> = env::args().collect();
-        let app_name = args.get(1).expect("HEROKU_APP_NAME must be set").to_string();
+        let app_name = env::args().nth(1).expect("HEROKU_APP_NAME must be set").to_string();
         let api_key = env::var("HEROKU_API_KEY").expect("HEROKU_API_KEY must be set");
         HerokuConfig{app_name, api_key}
     }
